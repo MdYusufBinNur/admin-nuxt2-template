@@ -1,0 +1,153 @@
+@font-face {
+  font-family: "Poppins";
+  src: local("Poppins"),
+  url("assets/Poppins/Poppins-Regular.ttf") format('truetype');
+  /*url(~assets/Poppins/Poppins-Regular.ttf) format("truetype");*/
+}
+html {
+  font-family: "Poppins", sans-serif;
+}
+.v-application {
+  font-family: Poppins, sans-serif;
+}
+
+.cursor_pointer{
+  cursor: pointer;
+}
+@font-face {
+  font-family: "PoppinsTitle3";
+  src: local("Poppins"),
+  url("assets/Poppins/Poppins-SemiBold.ttf") format('truetype');
+  /*url(~assets/Poppins/Poppins-Regular.ttf) format("truetype");*/
+}
+@font-face {
+  font-family: "PoppinsMedium";
+  src: local("Poppins"),
+  url("assets/Poppins/Poppins-Medium.ttf") format('truetype');
+  /*url(~assets/Poppins/Poppins-Regular.ttf) format("truetype");*/
+}
+@font-face {
+  font-family: 'KeplerTitle';
+  src: local('Kepler'),
+  url("assets/KeplerSTD/KeplerStd-MediumCnDisp.otf") format('truetype');
+}
+
+@font-face {
+  font-family: 'KeplerTitle2';
+  src: local('Kepler'),
+  url("assets/KeplerSTD/KeplerStd-SemiboldCnDisp.otf") format('truetype');
+}
+
+.kep_title {
+  font-family: "KeplerTitle", sans-serif;
+  font-weight: 500;
+  line-height: 50px;
+  font-size: 42px;
+}
+.kep_title_2 {
+  font-family: "KeplerTitle2", sans-serif;
+  font-weight: 500;
+  line-height: 43px;
+  font-size: 38px;
+}
+
+.ppns_title_3 {
+  font-family: "PoppinsTitle3", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 36px;
+  font-size: 18px;
+}
+.pp-body-reg-1 {
+  font-weight: 400;
+  font-style: normal;
+  line-height: 20px;
+  font-size: 16px;
+}
+
+.pp-body-med-1 {
+  font-family: "PoppinsMedium", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 20px;
+  font-size: 16px;
+}
+
+.pp-body-reg-2 {
+
+  font-weight: 400;
+  font-style: normal;
+  line-height: 27px;
+  font-size: 18px;
+}
+
+.pp-body-med-2 {
+  font-family: "PoppinsMedium", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 27px;
+  font-size: 18px;
+}
+
+.pp-btn {
+  font-family: "PoppinsMedium", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 21px;
+  font-size: 18px;
+}
+.pp-cation {
+  font-weight: 400;
+  font-style: normal;
+  line-height: 14px;
+  font-size: 12px;
+}
+.pp-cation-reg {
+  font-weight: 400;
+  font-style: normal;
+  line-height: 21px;
+  font-size: 14px;
+}
+.pp-cation-med {
+  font-family: "PoppinsMedium", sans-serif;
+  font-weight: 500;
+  font-style: normal;
+  line-height: 21px;
+  font-size: 14px;
+}
+
+::-webkit-scrollbar {
+  width: 3px;
+  background-color: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background-color: #454a4d;
+}
+::-webkit-scrollbar-thumb:hover {
+  background-color: #575e62;
+}
+::-webkit-scrollbar-thumb:active {
+  background-color: #484e51;
+}
+::-webkit-scrollbar-corner {
+  background-color: #181a1b;
+}
+
+
+.v-tab{
+  size: 1px;
+}
+.v-application .active {
+  background-color: #e5e5e5 !important;
+  border-color: #7d85a1 !important;
+}
+.data-table .v-data-table-header__icon {
+  display: none;
+}
+
+.progress-linear-border-radius{
+  border-bottom-right-radius: 15px;
+  border-top-right-radius: 15px;
+}
+
+
