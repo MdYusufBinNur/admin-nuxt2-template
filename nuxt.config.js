@@ -69,8 +69,8 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    baseURL: 'https://api.faraaz.info/api/v1'
-    // baseURL: 'http://faraaz-api/api/v1',
+    // baseURL: 'https://api.faraaz.info/api/v1'
+    baseURL: 'http://adbarta-api/api/v1',
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify
@@ -133,9 +133,9 @@ export default {
           property: false
         },
         endpoints: {
-          login: {url: '/admin-login', method: 'post'},
+          login: {url: '/login', method: 'post'},
           logout: {url: '/logout', method: 'get'},
-          user: {url: '/admin-info', method: 'get'}
+          user: {url: '/profile', method: 'get'}
         }
       }
     },

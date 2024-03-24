@@ -4,55 +4,41 @@
       <v-container fluid fill-height class="px-0 py-2">
         <v-row class="pa-0" no-gutters align="center">
           <v-list-item class="px-0">
-        <span class="py-0 kep_title text-capitalize text-center">
-         {{ $t('Category') }}
-        </span>
+              <span class="py-0 kep_title text-capitalize text-center">
+               {{ $t('Category') }}
+              </span>
             <v-spacer/>
           </v-list-item>
         </v-row>
       </v-container>
       <v-divider class="py-0"/>
-
     </v-card>
+    <v-row class="py-10">
 
-    <v-row class="mb-3">
-      <v-col cols="12" md="6" lg="6"
-             class="mt-2 pb-0">
-
-      </v-col>
-      <v-col cols="12" md="6" lg="6" class="pt-0 mt-0">
+      <v-col cols="6" sm="6" md="6">
         <v-text-field
           rounded
-          color="secondary"
           background-color="white"
-          :placeholder="$t('Filter')"
+          :placeholder="$t('Search')"
           hide-details="auto"
           required
           single-line
-          append-icon=""
+          append-icon="mdi-magnify"
           type="text"
-          v-model="filterName"
-        >
-          <template v-slot:append>
-            <v-btn icon text small @click.prevent="initialize(true)">
-              <v-icon color="secondary">
-                mdi-magnify
-              </v-icon>
-            </v-btn>
-            <v-btn icon text small v-show="filterMode" @click.prevent="clearFilter">
-              <v-icon color="red">
-                mdi-close
-              </v-icon>
-            </v-btn>
-
-          </template>
-        </v-text-field>
-        <!--        <v-btn small rounded>-->
-        <!--          <v-icon left>-->
-        <!--            mdi-magnify-->
-        <!--          </v-icon>-->
-        <!--          search-->
-        <!--        </v-btn>-->
+          v-model="search"
+          dense
+          clearable
+          outlined
+        ></v-text-field>
+      </v-col>
+      <v-spacer v-show="bp.mdAndUp"></v-spacer>
+      <v-col cols="6" align-self="end" align="right" class="justify-end align-self-end align-center">
+        <v-btn rounded depressed class="secondary px-8 justify-center" @click="openDialog" dark>
+          <v-icon left small dense>
+            mdi-plus-box-outline
+          </v-icon>
+          {{ $t('Add New') }}
+        </v-btn>
       </v-col>
     </v-row>
     <v-skeleton-loader
@@ -62,17 +48,16 @@
     <v-data-table
       v-else
       :headers="headers"
-      :items="this.filterMode ? tempItems : items"
+      :items="items"
       item-key="name"
       class="elevation-1"
       :search="search"
-      :page.sync="page"
-      :items-per-page="itemsPerPage"
+      :page.sync="paginationMetadata.current_page"
+      :items-per-page="paginationMetadata.per_page"
       hide-default-footer
       align="center"
+      @page-count="paginationMetadata.total_page = $event"
     >
-
-
       <template #item.status="{item}">
         <v-chip small>
           Active
@@ -91,7 +76,7 @@
 
       </template>
       <template #item.action="{item}">
-        <v-btn icon color="info" depressed>
+        <v-btn icon color="info" depressed @click.prevent="editItem(item)">
           <v-img contain :src="editIcon" aspect-ratio="2"/>
         </v-btn>
         <v-btn icon color="danger" depressed @click="openDeleteDialog(item)">
@@ -99,252 +84,34 @@
         </v-btn>
       </template>
     </v-data-table>
-
     <v-card class="pa-0 pb-5 mt-4" style="background-color: transparent" flat color="transparent">
-      <v-row>
-        <v-col cols="12" md="5" sm="12" class="">
-         <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
-            {{ $t('Showing ') }} {{ items.length }} {{ $t('of') }} {{ totalCount }}
-           <v-menu offset-y left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-chip
-                close-icon="mdi-delete"
-                pill
-                small
-                dark
-                v-bind="attrs" v-on="on"
-                color="high"
-              >
-                {{ paginate }}
-                <v-icon color="white" class="pl-2">mdi-menu-down</v-icon>
-              </v-chip>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(title, index) in itemsPerPageArray"
-                :key="index"
-                class="black--text small"
-                selectable
-              >
-                <v-list-item-title class="black--text small" v-model="paginate"
-                                   @click="setPagination(title)">{{ title }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-           {{ $t('Rows per page') }}
-          </span>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col cols="12" sm="6" md="5" :align="bp.mdAndUp ? 'right' : 'left'">
-          <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
-            {{ $t('Showing page') }} {{ page }} {{ $t('of') }} {{ totalPage }}
-          </span>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-br-0 rounded-tr-0"
-            pill
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            color="white black--text"
-            @click="gotoPreviousPage"
-          >
-            <v-icon color="black">mdi-chevron-left</v-icon>
-          </v-chip>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-l-0 rounded-r-0 px-4 mx-0"
-            pill
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            dark
-            color="white black--text"
-          >
-            {{ page }}
-          </v-chip>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-l-0 rounded-r-0 mx-0"
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            dark
-            color="white black--text"
-            @click="gotoNextPage"
-          >
-            <v-icon color="black">mdi-chevron-right</v-icon>
-          </v-chip>
-          <v-menu offset-y left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-chip
-                close-icon="mdi-delete"
-                class="rounded-bl-0 rounded-tl-0 mx-0"
-                pill
-                :small="bp.mdAndUp"
-                :x-small="bp.smAndDown"
-                dark
-                v-bind="attrs" v-on="on"
-                color="white black--text"
-              >
-                {{ paginate }}
-                <v-icon color="black" class="pl-2">mdi-menu-down</v-icon>
-              </v-chip>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(title, index) in itemsPerPageArray"
-                :key="index"
-                class="black--text small"
-              >
-                <v-list-item-title class="black--text small" v-model="paginate" @click="setPagination(title)">{{
-                    title
-                  }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-col>
+      <v-row class="px-5">
+        <PaginationClientSide :items-length="items.length" :per-page.sync="paginationMetadata.per_page" :current-page.sync="paginationMetadata.current_page"/>
       </v-row>
     </v-card>
+    <v-dialog v-model="dialog" max-width="600">
+      <v-card>
+        <v-card-title class="headline">{{ formTitle }}</v-card-title>
+        <v-card-text>
+          <v-form ref="form" v-model="valid" lazy-validation>
+            <v-container>
+              <!-- Category Name -->
+              <v-text-field v-model="editedItem.name" label="Category Name" outlined
+                            :rules="formRules.name"></v-text-field>
 
-    <v-dialog
-      v-model="dialog"
-      max-width="650px"
-      persistent
-    >
-      <v-card flat light rounded>
-        <v-card-title class="pt-3 pb-0 h_primary">
-          <span class="kep_title_2">{{ formTitle }}</span>
-        </v-card-title>
-        <v-container grid-list-sm class="pt-0">
-          <v-divider/>
-          <v-row no-gutters class="pa-0">
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('First Name') }}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.first_name"
-                dense
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Last Name') }}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.last_name"
-                dense
-                hide-details="auto"
-              />
-            </v-col>
-
-            <v-col cols="12" class="pa-2">
-              <label class="title">{{ $t('Mobile') }}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.mobile"
-                dense
-                type="numeric"
-                hide-details="auto"
-              />
-            </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Select Gender') }}</label>
-              <v-select
-                :items="['Male', 'Female']"
-                hide-details="auto"
-                item-text="name"
-                ref="sub_district"
-                dense
-                item-value="id"
-                return-id
-                outlined
-                v-model="editedItem.gender"
-              />
-            </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Street Address') }}</label>
-
-              <v-text-field
-                hide-details="auto"
-                v-model="editedItem.address"
-                outlined
-                dense
-              />
-            </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('District') }}</label>
-              <SelectDistrict
-                ref="distr"
-                hide-details="auto"
-                outlined
-                :label="$t('District')"
-                v-model="editedItem.district_id"
-                @setSelectedDistrict="getSelectedDistrict"
-                @setSubs="getSubs"
-                dense
-              />
-            </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Thana') }}</label>
-              <v-autocomplete
-                :items="sub_districts"
-                hide-details="auto"
-                item-text="name"
-                ref="sub_district"
-                dense
-                item-value="id"
-                no-data-text="No Sub District Found"
-                return-id
-                outlined
-                :loading="subDistLoading"
-                v-model="subDistVal"
-                @change="setSubDistId"
-              />
-            </v-col>
-            <v-divider/>
-            <v-list-item-title class="px-2">
-              Login Credentials *
-            </v-list-item-title>
-            <v-col cols="12" class="pa-2">
-              <label class="title">{{ $t('Email') }}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.email"
-                dense
-                hide-details="auto"
-                type="email"
-              />
-            </v-col>
-            <v-col cols="12" md="12" class="pa-2">
-              <label class="title">{{ $t('Password') }}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.password"
-                dense
-                type="email"
-                hide-details="auto"
-              />
-            </v-col>
-
-          </v-row>
-          <v-divider class="mb-5"/>
-          <v-col cols="12" align="right" class="pa-2">
-
-            <v-btn outlined class="px-7" rounded depressed :loading="loadingSaveData" v-show="editedIndex !== -1"
-                   @click="updateUser">
-              {{ $t('Update') }}
-            </v-btn>
-            <v-btn outlined class="px-7" rounded depressed :loading="loadingSaveData" :disabled="loadingSaveData"
-                   v-show="editedIndex === -1" @click="saveUser">
-              {{ $t('Save') }}
-            </v-btn>
-            <v-btn outlined class="px-7" rounded depressed @click="closeView">
-              {{ $t('Close') }}
-            </v-btn>
-
-          </v-col>
-        </v-container>
+              <!-- Category Image -->
+              <v-file-input prepend-icon="" append-icon="mdi-file" v-model="editedItem.image" label="Category Image"
+                            outlined :rules="formRules.image"></v-file-input>
+            </v-container>
+          </v-form>
+        </v-card-text>
+        <v-card-actions>
+          <v-spacer></v-spacer>
+          <v-btn color="blue darken-1" text @click="closeDialog">Cancel</v-btn>
+          <v-btn color="primary" v-show="editedIndex === -1" :loading="loadingSaveData" text @click="saveCategory">Save</v-btn>
+          <v-btn color="primary" v-show="editedIndex !== -1" :loading="loadingSaveData" text @click="updateCategory">Update</v-btn>
+        </v-card-actions>
       </v-card>
-
     </v-dialog>
     <v-dialog
       v-model="dialogDelete"
@@ -353,7 +120,7 @@
     >
       <v-card align="center">
         <v-card-text class="text-center pa-5 pp-body-reg-2">
-          You are about to delete {{ editedItem.name }}, do you want to proceed?
+          You are about to delete this, do you want to proceed?
         </v-card-text>
         <v-card-actions class="pb-5">
           <v-spacer></v-spacer>
@@ -382,239 +149,58 @@
 </template>
 
 <script>
-import {mapGetters} from 'vuex'
 import editIcon from "static/icons/editInfoColor.png";
 import trashIcon from "static/icons/trashInfo.png";
+import PaginationClientSide from "@/components/Common/PaginationClientSide";
 
 export default {
   name: 'Category',
+  components: {PaginationClientSide},
   data() {
     return {
       editIcon,
       trashIcon,
+      dialog: false,
+      valid: false,
       title: null,
       search: '',
-      filterName: null,
-      calories: '',
-      dialog: false,
-      itemsPerPageArray: [5, 10, 15, 20, 25, 50],
       filter: {},
-      sortDesc: false,
-      page: 1,
-      itemsPerPage: 10,
-      items: [
-        {
-          name: 'Mobiles',
-          children: [
-            {name: 'Smartphones'},
-            {name: 'Feature phones'},
-            {name: 'Accessories'}
-          ]
-        },
-        {
-          name: 'Electronics',
-          children: [
-            {name: 'Computers & Laptops'},
-            {name: 'Tablets & E-readers'},
-            {name: 'Cameras & Photography'},
-            {name: 'Audio & Headphones'},
-            {name: 'TVs & Home Theater'},
-            {name: 'Video Games & Consoles'}
-          ]
-        },
-        {
-          name: 'Vehicles',
-          children: [
-            {name: 'Cars'},
-            {name: 'Motorcycles'},
-            {name: 'Trucks & Commercial Vehicles'},
-            {name: 'Boats & Watercraft'},
-            {name: 'RVs & Campers'},
-            {name: 'Parts & Accessories'}
-          ]
-        },
-        {
-          name: 'Property',
-          children: [
-            {name: 'Houses & Apartments for Sale'},
-            {name: 'Houses & Apartments for Rent'},
-            {name: 'Commercial Property'},
-            {name: 'Land & Plots'},
-            {name: 'Vacation Rentals'}
-          ]
-        },
-        {
-          name: 'Living',
-          children: [
-            {name: 'Furniture'},
-            {name: 'Home Appliances'},
-            {name: 'Home Decor & Garden'},
-            {name: 'Kitchen & Dining'},
-            {name: 'Bedding & Linens'}
-          ]
-        },
-        {
-          name: 'Pets',
-          children: [
-            {name: 'Dogs'},
-            {name: 'Cats'},
-            {name: 'Birds'},
-            {name: 'Fish & Aquariums'},
-            {name: 'Pet Supplies & Accessories'}
-          ]
-        },
-        {
-          name: "Men's Fashion",
-          children: [
-            {name: 'Clothing'},
-            {name: 'Shoes'},
-            {name: 'Accessories'}
-          ]
-        },
-        {
-          name: "Women's Fashion",
-          children: [
-            {name: 'Clothing'},
-            {name: 'Shoes'},
-            {name: 'Accessories'}
-          ]
-        },
-        {
-          name: 'Sports & Kids',
-          children: [
-            {name: 'Sports Equipment'},
-            {name: 'Fitness & Exercise'},
-            {name: 'Outdoor & Camping'},
-            {name: 'Toys & Games'}
-          ]
-        },
-        {
-          name: 'Business',
-          children: [
-            {name: 'Business for Sale'},
-            {name: 'Office Equipment & Furniture'},
-            {name: 'Services'}
-          ]
-        },
-        {
-          name: 'Essentials',
-          children: [
-            {name: 'Groceries & Food'},
-            {name: 'Health & Beauty'},
-            {name: 'Baby & Kids Essentials'},
-            {name: 'Cleaning & Household'}
-          ]
-        },
-        {
-          name: 'Education',
-          children: [
-            {name: 'Textbooks & Study Materials'},
-            {name: 'Online Courses & Tutorials'},
-            {name: 'School Supplies'}
-          ]
-        },
-        {
-          name: 'Agriculture',
-          children: [
-            {name: 'Farm Equipment & Machinery'},
-            {name: 'Livestock'},
-            {name: 'Seeds & Plants'},
-            {name: 'Agricultural Services'}
-          ]
-        },
-        {
-          name: 'Jobs',
-          children: [
-            {name: 'Job Openings'},
-            {name: 'Freelance & Part-Time'},
-            {name: 'Internships'}
-          ]
-        },
-        {
-          name: 'Services',
-          children: [
-            {name: 'Home Services'},
-            {name: 'Beauty & Wellness'},
-            {name: 'Tutoring & Lessons'},
-            {name: 'Event Planning & Catering'}
-          ]
-        },
-        {
-          name: 'Overseas',
-          children: [
-            {name: 'International Real Estate'},
-            {name: 'International Jobs'},
-            {name: 'Travel & Vacation Rentals'},
-            {name: 'Import & Export'}
-          ]
-        }
-      ],
-      tempItems: [],
-      subDistVal: null,
-      sub_districts: [],
-      filteredItems: [],
-      sortIconFor: '',
-      sortIcons: false,
+      items: [],
       active: 'Enable',
-      activeList: ['Enable', 'Disable'],
+      activeList: ['Active', 'Inactive'],
       loading: false,
       btnLoading: false,
-      subDistLoading: false,
       loadingSaveData: false,
-      usersMetadata: {
+      logoPreviewURL: false,
+      paginationMetadata: {
         count: 10,
         current_page: 1,
         last_page: 1,
         next_page: 1,
         next_page_url: null,
-        per_page: "10",
+        per_page: 10,
         prev_page: 0,
         prev_page_url: null,
         total: 10,
         total_page: 1,
       },
       dialogDelete: false,
-      editedIndex: null,
-      locations: [],
-      totalPage: 1,
-      nextPageUrl: null,
-      previousPageUrl: null,
-      paginate: 10,
-      currentPage: null,
-      nextPage: null,
-      prevPage: null,
-      totalCount: 0,
-      filterMode: false,
+      editedIndex: -1,
       editedItem: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
-        email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+        id: null,
+        name: '',
+        image: '',
+        active: null
       },
       defaultItem: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
-        email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+        id: null,
+        name: '',
+        image: '',
+        active: null
       },
-      dialogItems: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
-        email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
-      },
+      nameRules: [
+        v => !!v || this.$t('Category name is required')
+      ]
     }
   },
   computed: {
@@ -626,8 +212,6 @@ export default {
           class: 'accentlight',
         },
         {text: this.$t('Category Name'), value: 'name', class: 'accentlight',},
-
-
         {text: this.$t('Status'), value: 'status', class: 'accentlight',},
         {text: this.$t('Action'), value: 'action', class: 'accentlight',},
       ]
@@ -635,7 +219,18 @@ export default {
     formTitle() {
       return this.editedIndex === -1 ? 'Add New' : 'Edit'
     },
-
+    formRules() {
+      // Define dynamic validation rules for the form
+      return {
+        name: [
+          v => !!v || this.$t('Category name is required')
+        ],
+        image: [
+          // Make the image field required only for new categories
+          v => !this.editedItem.id || !!v || 'Image is required'
+        ]
+      };
+    },
   },
   created() {
     // this.$root.$on('filterUserData', () => {
@@ -646,14 +241,9 @@ export default {
     //   this.$store.commit('user/setFilteredUsers', [])
     // })
 
-    this.initialize(this.filterMode)
+    this.getCategory()
   },
   methods: {
-    initialize(item) {
-      this.loading = true
-      setTimeout(() => (this.loading = false), 1500)
-
-    },
     openDeleteDialog(item) {
       this.editedIndex = this.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
@@ -664,8 +254,102 @@ export default {
       this.editedItem = Object.assign({}, this.defaultItem)
       this.dialogDelete = false
     },
+    makeDelete() {
+      if (!this.editedItem.id) {
+        return this.$toast.error('Something went wrong! Try Again')
+      }
+      this.btnLoading = true
+      this.$axios.delete('categories/' + this.editedItem.id)
+        .then((response) => {
+          this.$toast.success(response.data.message)
+          this.items.splice(this.editedIndex, 1)
+        })
+        .catch((error) => {
+          this.$toast.error(error.response.data.message)
+        })
+        .finally(() => {
+          this.btnLoading = false
+          this.closeDeleteDialog()
+        })
+    },
+    openDialog() {
+      this.dialog = true;
+    },
+    closeDialog() {
+      this.dialog = false;
+      this.$refs.form.reset();
+      this.editedItem.name = '';
+      this.editedItem.image = null;
+      this.editedItem.id = null;
+      this.editedItem.active = null;
+      this.editedIndex = -1;
+      this.valid = false;
+    },
+    saveCategory() {
+      if (this.$refs.form.validate()) {
+        this.loadingSaveData = true
+        let formData = new FormData()
+        formData.append('name', this.editedItem.name)
+        formData.append('image', this.editedItem.image)
+        this.$axios.post('categories', formData)
+          .then((response) => {
+            this.$toast.success(response.data.message)
+            this.items.push(response.data.data)
 
-  }
+          })
+          .catch((error) => {
+            this.$toast.error(error.response.data.message)
+          })
+          .finally(() => {
+            this.closeDialog();
+            this.loadingSaveData = false
+          })
+      }
+    },
+    editItem(item) {
+      this.editedItem.id = item.id
+      this.editedItem.name = item.name
+      this.logoPreviewURL = item.image ? item.image : null
+      this.editedIndex = this.items.indexOf(item)
+      this.dialog = true
+    },
+    updateCategory() {
+      if (!this.editedItem.id) {
+        return this.$toast.error('Something went wrong! Try Again')
+      }
+      this.loadingSaveData = true
+      let formData = new FormData()
+      formData.append('_method', 'put')
+      formData.append('name', this.editedItem.name)
+      this.editedItem.image && formData.append('image', this.editedItem.image)
+      this.$axios.post('categories/' + this.editedItem.id, formData)
+        .then((response) => {
+          this.$toast.success(response.data.message)
+          Object.assign(this.items[this.editedIndex], response.data.data)
+
+        })
+        .catch((error) => {
+          this.$toast.error(error.response.data.message)
+        })
+        .finally(() => {
+          this.closeDialog();
+          this.loadingSaveData = false
+        })
+    },
+    getCategory() {
+      this.loading = true
+      this.$axios.get('categories')
+        .then((response) => {
+          this.items = response.data.data.categories
+          this.paginationMetadata = response.data.data.pagination
+        })
+        .catch((error) => {
+        })
+        .finally(() => {
+          this.loading = false
+        })
+    }
+  },
 }
 </script>
 

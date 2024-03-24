@@ -161,7 +161,6 @@ export default {
       adminMenu: false,
       dialog: false,
       drawer: true,
-      mini: false,
       username: '',
       userImage: '',
       switch1: true,
