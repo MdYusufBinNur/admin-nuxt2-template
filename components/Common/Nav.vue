@@ -168,6 +168,7 @@ export default {
         {title: 'Dashboard', icon: 'mdi-home', to: '/', items: null},
         {title: 'Users', icon: 'mdi-account', to: '/users', items: null},
         {title: 'Category', icon: 'mdi-more', to: '/category', items: null},
+        {title: 'Sub Category', icon: 'mdi-file', to: '/sub-category', items: null},
         {title: 'Account', icon: 'mdi-credit-card-plus', to: '/account', items: null},
         {title: 'All Ad', icon: 'mdi-autorenew', to: '/ad', items: null},
 
