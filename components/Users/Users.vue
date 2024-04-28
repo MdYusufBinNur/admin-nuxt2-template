@@ -39,12 +39,11 @@
                 mdi-magnify
               </v-icon>
             </v-btn>
-            <v-btn icon text small v-show="filterMode" @click.prevent="clearFilter">
+            <v-btn icon text small v-show="filterMode">
               <v-icon color="red">
                 mdi-close
               </v-icon>
             </v-btn>
-
           </template>
         </v-text-field>
         <!--        <v-btn small rounded>-->
@@ -74,117 +73,30 @@
 
 
       <template #item.action="{item}">
-        <v-btn icon color="info" depressed >
-          <v-img contain :src="editIcon" aspect-ratio="2"/>
+        <v-btn icon color="info" depressed @click.prevent="openWalletDialog(item)">
+         <v-icon  color="primary">
+           mdi-credit-card-plus-outline
+         </v-icon>
+        </v-btn>
+        <v-btn icon color="info" depressed @click.prevent="openDialog(item)">
+<!--          <v-img contain :src="editIcon" aspect-ratio="2"/>-->
+          <v-icon  color="primary">
+            mdi-pencil-circle-outline
+          </v-icon>
         </v-btn>
         <v-btn icon color="danger" depressed @click="openDeleteDialog(item)">
-          <v-img contain :src="trashIcon" aspect-ratio="2"/>
+<!--          <v-img contain :src="trashIcon" aspect-ratio="2"/>-->
+          <v-icon  color="red">
+            mdi-close-circle-outline
+          </v-icon>
         </v-btn>
       </template>
     </v-data-table>
 
     <v-card class="pa-0 pb-5 mt-4" style="background-color: transparent" flat color="transparent">
-      <v-row>
-        <v-col cols="12" md="5" sm="12" class="">
-         <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
-            {{ $t('Showing ') }} {{ items.length }} {{ $t('of') }} {{ totalCount }}
-           <v-menu offset-y left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-chip
-                close-icon="mdi-delete"
-                pill
-                small
-                dark
-                v-bind="attrs" v-on="on"
-                color="high"
-              >
-                {{ paginate }}
-                <v-icon color="white" class="pl-2">mdi-menu-down</v-icon>
-              </v-chip>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(title, index) in itemsPerPageArray"
-                :key="index"
-                class="black--text small"
-                selectable
-              >
-                <v-list-item-title class="black--text small"  v-model="paginate"
-                                   @click="setPagination(title)">{{ title }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-           {{ $t('Rows per page') }}
-          </span>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col cols="12" sm="6" md="5" :align="bp.mdAndUp ? 'right' : 'left'">
-          <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
-            {{ $t('Showing page') }} {{ page }} {{ $t('of') }} {{ totalPage }}
-          </span>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-br-0 rounded-tr-0"
-            pill
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            color="white black--text"
-            @click="gotoPreviousPage"
-          >
-            <v-icon color="black">mdi-chevron-left</v-icon>
-          </v-chip>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-l-0 rounded-r-0 px-4 mx-0"
-            pill
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            dark
-            color="white black--text"
-          >
-            {{ page }}
-          </v-chip>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-l-0 rounded-r-0 mx-0"
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            dark
-            color="white black--text"
-            @click="gotoNextPage"
-          >
-            <v-icon color="black">mdi-chevron-right</v-icon>
-          </v-chip>
-          <v-menu offset-y left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-chip
-                close-icon="mdi-delete"
-                class="rounded-bl-0 rounded-tl-0 mx-0"
-                pill
-                :small="bp.mdAndUp"
-                :x-small="bp.smAndDown"
-                dark
-                v-bind="attrs" v-on="on"
-                color="white black--text"
-              >
-                {{ paginate }}
-                <v-icon color="black" class="pl-2">mdi-menu-down</v-icon>
-              </v-chip>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(title, index) in itemsPerPageArray"
-                :key="index"
-                class="black--text small"
-              >
-                <v-list-item-title class="black--text small" v-model="paginate" @click="setPagination(title)">{{
-                    title
-                  }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-col>
+      <v-row class="px-5">
+        <PaginationClientSide :items-length="items.length" :per-page.sync="paginationMetadata.per_page"
+                              :current-page.sync="paginationMetadata.current_page"/>
       </v-row>
     </v-card>
 
@@ -195,131 +107,79 @@
     >
       <v-card flat light rounded>
         <v-card-title class="pt-3 pb-0 h_primary">
-          <span class="kep_title_2">{{ formTitle}}</span>
+          <span class="kep_title_2">
+            {{ $t('View') }}
+          </span>
         </v-card-title>
-        <v-container grid-list-sm class="pt-0">
-          <v-divider/>
-          <v-row no-gutters class="pa-0">
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('First Name')}}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.first_name"
-                dense
-                hide-details="auto"
-              />
+        <v-container grid-list-sm class="pa-5">
+          <v-row>
+            <v-col cols="6">
+              <strong>Status:</strong> {{ editedItem.status }}
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Last Name')}}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.last_name"
-                dense
-                hide-details="auto"
-              />
+            <v-col cols="6">
+              <v-select v-model="selectedStatus" @change="updateStatus" :items="['approved', 'pending','declined']"
+                        label="Change Status" small-chips hide-details="auto" dense outlined/>
+            </v-col>
+          </v-row>
+          <v-row>
+
+            <v-col cols="12">
+              <v-avatar>
+                <img
+                  :src="editedItem.photo"
+                  :alt="editedItem.uid"
+                >
+              </v-avatar>
+            </v-col>
+            <v-col cols="6">
+              <strong>Full Name:</strong> {{ editedItem.name }}
+            </v-col>
+            <v-col cols="6">
+              <strong>Email:</strong> {{ editedItem.email }}
+            </v-col>
+            <v-col cols="6">
+              <strong>UID:</strong> {{ editedItem.uid }}
+            </v-col>
+            <v-col cols="6">
+              <strong>Phone:</strong> {{ editedItem.phone }}
             </v-col>
 
-            <v-col cols="12" class="pa-2">
-              <label class="title">{{ $t('Mobile')}}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.mobile"
-                dense
-                type="numeric"
-                hide-details="auto"
-              />
+            <v-col cols="6">
+              <strong>Role:</strong> {{ editedItem.role }}
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Select Gender')}}</label>
-              <v-select
-                :items="['Male', 'Female']"
-                hide-details="auto"
-                item-text="name"
-                ref="sub_district"
-                dense
-                item-value="id"
-                return-id
-                outlined
-                v-model="editedItem.gender"
-              />
+            <v-col cols="6">
+              <strong>District:</strong> {{ editedItem.district }}
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Street Address')}}</label>
-
-              <v-text-field
-                hide-details="auto"
-                v-model="editedItem.address"
-                outlined
-                dense
-              />
+            <v-col cols="6">
+              <strong>Sub District:</strong> {{ editedItem.sub_district }}
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('District')}}</label>
-              <SelectDistrict
-                ref="distr"
-                hide-details="auto"
-                outlined
-                :label="$t('District')"
-                v-model="editedItem.district_id"
-                @setSelectedDistrict="getSelectedDistrict"
-                @setSubs="getSubs"
-                dense
-              />
+            <v-col cols="6">
+              <strong>Street Address:</strong> {{ editedItem.street }}
             </v-col>
-            <v-col cols="12" md="6" class="pa-2">
-              <label class="title">{{ $t('Thana')}}</label>
-              <v-autocomplete
-                :items="sub_districts"
-                hide-details="auto"
-                item-text="name"
-                ref="sub_district"
-                dense
-                item-value="id"
-                no-data-text="No Sub District Found"
-                return-id
-                outlined
-                :loading="subDistLoading"
-                v-model="subDistVal"
-                @change="setSubDistId"
-              />
+            <v-col cols="6">
+              <strong>Date Of birth:</strong> {{ editedItem.dob }}
             </v-col>
-            <v-divider />
-            <v-list-item-title class="px-2">
-              Login Credentials *
-            </v-list-item-title>
-            <v-col cols="12" class="pa-2">
-              <label class="title">{{ $t('Email')}}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.email"
-                dense
-                hide-details="auto"
-                type="email"
-              />
+            <v-col cols="6">
+              <strong>Created At:</strong> {{ editedItem.created_at }}
             </v-col>
-            <v-col cols="12" md="12" class="pa-2">
-              <label class="title">{{ $t('Password')}}</label>
-              <v-text-field
-                outlined
-                v-model="editedItem.password"
-                dense
-                type="email"
-                hide-details="auto"
-              />
+            <v-col cols="6">
+              <strong>NID Front</strong>
+              <div>
+                <v-img width="300" height="auto" :src="editedItem.nid_one" />
+              </div>
             </v-col>
-
+            <v-col cols="6">
+              <strong>NID Back</strong>
+              <div>
+                <v-img width="300" height="auto" :src="editedItem.nid_two" />
+              </div>
+            </v-col>
           </v-row>
           <v-divider class="mb-5"/>
           <v-col cols="12" align="right" class="pa-2">
+            <v-btn outlined class="px-7" rounded depressed @click.prevent="closeDialog">
+              {{ $t('Close') }}
 
-            <v-btn outlined class="px-7" rounded depressed :loading="loadingSaveData"  v-show="editedIndex !== -1" @click="updateUser">
-              {{ $t('Update')}}
-            </v-btn>
-            <v-btn outlined class="px-7" rounded depressed :loading="loadingSaveData" :disabled="loadingSaveData" v-show="editedIndex === -1"  @click="saveUser">
-              {{ $t('Save')}}
-            </v-btn>
-            <v-btn outlined class="px-7" rounded depressed  @click="closeView">
-              {{ $t('Close')}}
             </v-btn>
 
           </v-col>
@@ -345,15 +205,50 @@
             class="px-5"
             @click="closeDeleteDialog"
           >
-            {{ $t('No')}}
+            {{ $t('No') }}
           </v-btn>
           <v-btn
             class="primary px-5"
             rounded
             :loading="btnLoading"
-            @click="makeDelete"
+
           >
-            {{ $t('yes')}}
+            {{ $t('yes') }}
+          </v-btn>
+          <v-spacer></v-spacer>
+        </v-card-actions>
+      </v-card>
+    </v-dialog>
+    <v-dialog
+      v-model="walletDialog"
+      persistent
+      max-width="390"
+    >
+      <v-card align="center" class="pa-5">
+        <v-card-text class="text-start pp-body-reg-2">
+          You are about to add wallet point for {{ editedItem.name }}?
+        </v-card-text>
+        <v-card-actions>
+          <v-text-field outlined dense v-model="walletPoint" label="Wallet point" hint="you can add any integer value" persistent-hint />
+        </v-card-actions>
+        <v-card-actions class="pb-5">
+          <v-btn
+            color="secondary"
+            outlined
+            rounded
+            class="px-5"
+            @click="closeWalletDialog"
+          >
+            {{ $t('No') }}
+          </v-btn>
+          <v-btn
+            class="primary px-5"
+            rounded
+            :loading="btnLoading"
+
+            @click.prevent="setWalletPoint"
+          >
+            {{ $t('Add Point') }}
           </v-btn>
           <v-spacer></v-spacer>
         </v-card-actions>
@@ -366,31 +261,34 @@
 import {mapGetters} from 'vuex'
 import editIcon from "static/icons/editInfoColor.png";
 import trashIcon from "static/icons/trashInfo.png";
+import PaginationClientSide from "@/components/Common/PaginationClientSide";
+import error from "@/layouts/error";
 
 export default {
+  components: {PaginationClientSide},
   data() {
     return {
       editIcon,
       trashIcon,
       title: null,
+      selectedStatus: null,
       search: '',
-      filterName:null,
+      filterName: null,
       calories: '',
       dialog: false,
+      walletDialog: false,
       itemsPerPageArray: [5, 10, 15, 20, 25, 50],
       filter: {},
       sortDesc: false,
       page: 1,
       itemsPerPage: 10,
-      items: [
-        { user_id: 1, name: 'John Doe', registered: 'Admin', mobile: '1234567890', location: 'New York', sms: 'Yes', action: 'Edit' },
-        { user_id: 2, name: 'Jane Smith', registered: 'User', mobile: '9876543210', location: 'Los Angeles', sms: 'No', action: 'Delete' },
-      ],
+      items: [],
       tempItems: [],
       subDistVal: null,
       sub_districts: [],
       filteredItems: [],
       sortIconFor: '',
+      walletPoint: 0,
       sortIcons: false,
       active: 'Enable',
       activeList: ['Enable', 'Disable'],
@@ -422,42 +320,71 @@ export default {
       prevPage: null,
       totalCount: 0,
       filterMode: false,
+      stateLoading: false,
       editedItem: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
+        name: null,
         email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+        uid: null,
+        photo: null,
+        phone: null,
+        website: null,
+        company: null,
+        nid_one: null,
+        nid_two: null,
+        street: null,
+        dob: null,
+        about: null,
+        role: null,
+        email_verified_at: null,
+        district: null,
+        sub_district: null,
+        last_activity: null,
+        active: null,
+        status: null,
+        created_at: null,
+        updated_at: null
       },
       defaultItem: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
+        name: null,
         email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+        uid: null,
+        photo: null,
+        phone: null,
+        website: null,
+        company: null,
+        nid_one: null,
+        nid_two: null,
+        street: null,
+        dob: null,
+        about: null,
+        role: null,
+        email_verified_at: null,
+        district: null,
+        sub_district: null,
+        last_activity: null,
+        active: null,
+        status: null,
+        created_at: null,
+        updated_at: null
       },
-      dialogItems: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
-        email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+      paginationMetadata: {
+        count: 10,
+        current_page: 1,
+        last_page: 1,
+        next_page: 1,
+        next_page_url: null,
+        per_page: 10,
+        prev_page: 0,
+        prev_page_url: null,
+        total: 10,
+        total_page: 1,
       },
     }
   },
   computed: {
     headers() {
       return [
-        {text: this.$t('User ID'), value: 'user_id', class: 'accentlight',},
+        {text: this.$t('User ID'), value: 'uid', class: 'accentlight',},
         {
           text: this.$t('Name'),
           sortable: true,
@@ -467,19 +394,20 @@ export default {
           align: 'center'
         },
         {
-          text: this.$t('User Category'),
+          text: this.$t('Email'),
           sortable: true,
-          value: 'registered',
+          value: 'email',
           class: 'accentlight text-capitalized',
           sortIcon: 'mdi-menu-up',
           align: 'center'
         },
         {
           text: this.$t('Mobile'),
-          value: 'mobile',
+          value: 'phone',
           class: 'accentlight',
         },
-        {text: this.$t('Location'), value: 'location', class: 'accentlight',},
+        {text: this.$t('Wallet Point'), value: 'wallet.available', class: 'accentlight',},
+        {text: this.$t('Status'), value: 'status', class: 'accentlight',},
         {text: this.$t('Action'), value: 'action', class: 'accentlight',},
       ]
     },
@@ -489,20 +417,23 @@ export default {
 
   },
   created() {
-    // this.$root.$on('filterUserData', () => {
-    //   this.dashboardFilterMode = true
-    // })
-    // this.$root.$on('clearFilterMode', () => {
-    //   this.dashboardFilterMode = false
-    //   this.$store.commit('user/setFilteredUsers', [])
-    // })
-
     this.initialize(this.filterMode)
   },
   methods: {
-    initialize(item) {
+    initialize() {
       this.loading = true
-      setTimeout(() => (this.loading = false), 1500)
+      this.$axios.get('users')
+        .then((res) => {
+          console.log(res)
+          this.items = res.data.data.users
+          this.paginationMetadata = res.data.data.pagination
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data.message)
+        })
+        .finally(() => {
+          this.loading = false
+        })
 
     },
     openDeleteDialog(item) {
@@ -515,7 +446,63 @@ export default {
       this.editedItem = Object.assign({}, this.defaultItem)
       this.dialogDelete = false
     },
+    openDialog(item) {
+      this.editedIndex = this.items.indexOf(item)
+      this.editedItem = Object.assign({}, item)
+      this.dialog = true
+    },
+    closeDialog() {
+      this.editedIndex = -1
+      this.editedItem = Object.assign({}, this.defaultItem)
+      this.dialog = false
+    },
 
+    updateStatus() {
+      this.stateLoading = true
+
+      let formData = new FormData()
+      formData.append('status', this.selectedStatus)
+      formData.append('_method', 'put')
+
+      this.$axios.post(`users/${this.editedItem.id}`,  formData)
+        .then((res) => {
+          this.$toast.success(res.data.message)
+          this.initialize()
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data.message)
+        })
+        .finally(() => {
+          this.stateLoading = false
+        })
+    },
+    openWalletDialog (item) {
+      this.editedItem = Object.assign({}, item)
+      this.walletDialog = true
+    },
+    closeWalletDialog() {
+      this.walletPoint = 0
+      this.editedItem = this.defaultItem
+      this.walletDialog = false
+    },
+    setWalletPoint() {
+      this.btnLoading = true
+      let formData  = new FormData()
+      formData.append('points', this.walletPoint)
+      this.$axios.post(`add-point/${this.editedItem.id}`, formData)
+        .then((res) => {
+          this.$toast.success(res.data.message)
+          this.initialize()
+          this.closeWalletDialog()
+        })
+        .catch((error) => {
+          this.$toast.error(error.response.data.message)
+        })
+        .finally(() => {
+          this.walletDialog = false
+          this.btnLoading = false
+        })
+    }
   }
 }
 </script>

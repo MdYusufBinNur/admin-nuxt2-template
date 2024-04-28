@@ -43,18 +43,7 @@
 
           </template>
         </v-text-field>
-        <!--        <v-btn small rounded>-->
-        <!--          <v-icon left>-->
-        <!--            mdi-magnify-->
-        <!--          </v-icon>-->
-        <!--          search-->
-        <!--        </v-btn>-->
-      </v-col>
-      <v-col cols="12" md="6" lg="6"
-             class=" pb-0 text-right text-capitalize px-5">
-<!--        <v-btn class="primary" small rounded @click="openAddCreditDialog">-->
-<!--          Add Credit-->
-<!--        </v-btn>-->
+
       </v-col>
     </v-row>
     <v-skeleton-loader
@@ -79,7 +68,7 @@
           <v-img
             height="100"
             width="100"
-            src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+            :src="item.image"
             lazy-src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
             style="border-radius: 0"
           ></v-img>
@@ -87,7 +76,7 @@
 
       </template>
       <template #item.status="{item}">
-        <v-btn rounded x-small @click.pr.prevent="openApproveDialog"
+        <v-btn rounded x-small @click.pr.prevent="openApproveDialog(item)"
                :class="item.status === 'approved' ? 'success darken-2 text-capitalize px-3' :'primary text-capitalize px-3'">
           {{ item.status === 'approved' ? 'Approved' : 'Not Approved' }}
         </v-btn>
@@ -253,8 +242,9 @@
         </v-card-text>
         <v-select
           label="Select Status"
-          class="px-5"
-          :items="['Approve','Not Approve']"
+          class="px-5 text-capitalize"
+          :items="['approved','not_approved']"
+          v-model="approvalStatus"
           outlined dense hide-details="auto"
           hint="Select the approval"/>
         <v-card-actions class="pb-5">
@@ -271,7 +261,7 @@
             class="primary px-5"
             rounded
             :loading="btnLoading"
-            @click=""
+            @click.prevent="makeApprove"
           >
             {{ $t('yes') }}
           </v-btn>
@@ -342,6 +332,7 @@ export default {
       approveDialog: false,
       addCreditDialog: false,
       search: '',
+      approvalStatus: null,
       filterName: null,
       calories: '',
       dialog: false,
@@ -445,30 +436,30 @@ export default {
         {
           text: this.$t('Name'),
           sortable: true,
-          value: 'name',
+          value: 'title',
           class: 'accentlight text-capitalized',
           sortIcon: 'mdi-menu-up',
           align: 'center'
         },
         {
-          text: this.$t('Amount'),
+          text: this.$t('Price'),
           sortable: true,
-          value: 'amount',
+          value: 'price',
           class: 'accentlight text-capitalized',
           sortIcon: 'mdi-menu-up',
           align: 'center'
         },
         {
-          text: this.$t('trxID'),
+          text: this.$t('Ad type'),
           sortable: true,
-          value: 'trxID',
+          value: 'product_type',
           class: 'accentlight text-capitalized',
           sortIcon: 'mdi-menu-up',
           align: 'center'
         },
         {
           text: this.$t('Mobile'),
-          value: 'mobile',
+          value: 'contact_number',
           class: 'accentlight',
         },
         {text: this.$t('Status'), value: 'status', class: 'accentlight',},
@@ -494,15 +485,27 @@ export default {
   methods: {
     initialize(item) {
       this.loading = true
-      setTimeout(() => (this.loading = false), 1500)
-
+      this.$axios.get('ads')
+        .then((res) => {
+          console.log(res)
+          this.items = res.data.data.products
+          this.paginationMetadata = res.data.data.pagination
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data.message)
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
     openDeleteDialog(item) {
       this.editedIndex = this.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
-    openApproveDialog() {
+    openApproveDialog(item) {
+      this.editedItem = Object.assign({}, item)
+      this.editedIndex = this.items.indexOf(item)
       this.approveDialog = true
     },
     closeDeleteDialog() {
@@ -524,6 +527,24 @@ export default {
       this.approveDialog = false
     },
 
+    makeApprove() {
+      this.btnLoading = true
+      let formData= new FormData()
+      formData.append('status', this.approvalStatus)
+      formData.append('_method', 'put')
+      this.$axios.post(`ads/${this.editedItem.id}`, formData)
+        .then((res) => {
+          this.$toast.success(res.data.message)
+          this.initialize()
+          this.closeApproveDialog()
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data.message)
+        })
+        .finally(() => {
+          this.btnLoading = false
+        })
+    }
   }
 }
 </script>

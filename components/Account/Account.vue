@@ -5,7 +5,7 @@
         <v-row class="pa-0" no-gutters align="center">
           <v-list-item class="px-0">
         <span class="py-0 kep_title text-capitalize text-center">
-         {{ $t('Account') }}
+         {{ $t('User Wallet') }}
         </span>
             <v-spacer/>
           </v-list-item>
