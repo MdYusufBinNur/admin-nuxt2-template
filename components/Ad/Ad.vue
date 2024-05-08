@@ -19,7 +19,6 @@
 
       <v-col cols="12" md="6" lg="6" class="pt-0 mt-0">
         <v-text-field
-
           dense
           :placeholder="$t('Filter')"
           hide-details="auto"
