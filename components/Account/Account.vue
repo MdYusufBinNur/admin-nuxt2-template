@@ -17,7 +17,7 @@
 
     <v-row class="mb-3 mt-2">
 
-      <v-col cols="12" md="6" lg="6" class="pt-0 mt-0">
+      <v-col cols="12" md="4" lg="4" class="pt-0 mt-0">
         <v-text-field
 
           dense
@@ -27,19 +27,21 @@
           single-line
           append-icon=""
           type="text"
-          v-model="filterName"
+          v-model="search"
+          rounded
+          outlined
         >
           <template v-slot:append>
-            <v-btn icon text small @click.prevent="initialize(true)">
-              <v-icon color="secondary">
-                mdi-magnify
-              </v-icon>
-            </v-btn>
-            <v-btn icon text small v-show="filterMode" @click.prevent="clearFilter">
-              <v-icon color="red">
-                mdi-close
-              </v-icon>
-            </v-btn>
+            <!--            <v-btn icon text small @click.prevent="initialize(true)">-->
+            <!--              <v-icon color="secondary">-->
+            <!--                mdi-magnify-->
+            <!--              </v-icon>-->
+            <!--            </v-btn>-->
+            <!--            <v-btn icon text small v-show="filterMode" @click.prevent="clearFilter">-->
+            <!--              <v-icon color="red">-->
+            <!--                mdi-close-->
+            <!--              </v-icon>-->
+            <!--            </v-btn>-->
 
           </template>
         </v-text-field>
@@ -50,12 +52,12 @@
         <!--          search-->
         <!--        </v-btn>-->
       </v-col>
-      <v-col cols="12" md="6" lg="6"
-             class=" pb-0 text-right text-capitalize px-5">
-        <v-btn class="primary" small rounded @click="openAddCreditDialog">
-          Add Credit
-        </v-btn>
-      </v-col>
+      <!--      <v-col cols="12" md="6" lg="6"-->
+      <!--             class=" pb-0 text-right text-capitalize px-5">-->
+      <!--        <v-btn class="primary" small rounded @click="openAddCreditDialog">-->
+      <!--          Add Credit-->
+      <!--        </v-btn>-->
+      <!--      </v-col>-->
     </v-row>
     <v-skeleton-loader
       v-if="loading"
@@ -76,9 +78,13 @@
 
 
       <template #item.status="{item}">
-        <v-btn rounded x-small @click.pr.prevent="openApproveDialog"
-               :class="item.status === 'approved' ? 'success darken-2 text-capitalize px-3' :'primary text-capitalize px-3'">
-          {{ item.status === 'approved' ? 'Approved' : 'Not Approved' }}
+        <v-btn v-if="item.status !== 'Approve'" rounded x-small @click.prevent="openApproveDialog(item)"
+               :class="item.status === 'Approve' ? 'success darken-2 text-capitalize px-3' :'primary text-capitalize px-3'">
+          {{ item.status }}
+        </v-btn>
+        <v-btn v-if="item.status === 'Approve'" rounded x-small
+               :class="item.status === 'Approve' ? 'success darken-2 text-capitalize px-3' :'primary text-capitalize px-3'">
+          {{ item.status }}
         </v-btn>
       </template>
       <template #item.action="{item}">
@@ -245,7 +251,9 @@
           class="px-5"
           :items="['Approve','Not Approve']"
           outlined dense hide-details="auto"
-          hint="Select the approval"/>
+          hint="Select the approval"
+          v-model="editedItem.status"
+        />
         <v-card-actions class="pb-5">
           <v-spacer></v-spacer>
           <v-btn
@@ -261,7 +269,7 @@
             class="primary px-5"
             rounded
             :loading="btnLoading"
-            @click=""
+            @click.prevent="changeStatus"
           >
             {{ $t('yes') }}
           </v-btn>
@@ -286,7 +294,7 @@
           class="px-5"
           :items="['Yusuf','Zobayer','Ahmed', 'Asif', 'Tisha']"
           outlined dense hide-details="auto"
-          />
+        />
         <v-text-field
           outlined dense type="number" hide-details="auto" class="px-5 py-5" label="Enter Amount">
 
@@ -340,26 +348,7 @@ export default {
       sortDesc: false,
       page: 1,
       itemsPerPage: 10,
-      items: [
-        {
-          user_id: 1,
-          name: 'John Doe',
-          amount: '1000',
-          mobile: '1234567890',
-          status: 'not_approve',
-          trxID: 'txR23SAF',
-          action: 'Edit'
-        },
-        {
-          user_id: 2,
-          name: 'Jane Smith',
-          amount: '2000',
-          mobile: '9876543210',
-          status: 'approved',
-          trxID: 'txR23SAF',
-          action: 'Delete'
-        },
-      ],
+      items: [],
       tempItems: [],
       subDistVal: null,
       sub_districts: [],
@@ -397,41 +386,20 @@ export default {
       totalCount: 0,
       filterMode: false,
       editedItem: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
-        email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+        status: null,
       },
       defaultItem: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
-        email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+        status: null,
       },
       dialogItems: {
-        first_name: null,
-        last_name: null,
-        mobile: null,
-        email: null,
-        gender: null,
-        district_id: null,
-        sub_district_id: null,
-        address: null,
+        status: null,
       },
     }
   },
   computed: {
     headers() {
       return [
-        {text: this.$t('User ID'), value: 'user_id', class: 'accentlight',},
+        {text: this.$t('User ID'), value: 'user_uid', class: 'accentlight',},
         {
           text: this.$t('Name'),
           sortable: true,
@@ -443,7 +411,7 @@ export default {
         {
           text: this.$t('Amount'),
           sortable: true,
-          value: 'amount',
+          value: 'points',
           class: 'accentlight text-capitalized',
           sortIcon: 'mdi-menu-up',
           align: 'center'
@@ -458,11 +426,11 @@ export default {
         },
         {
           text: this.$t('Mobile'),
-          value: 'mobile',
+          value: 'phone',
           class: 'accentlight',
         },
         {text: this.$t('Status'), value: 'status', class: 'accentlight',},
-        {text: this.$t('Action'), value: 'action', class: 'accentlight',},
+        // {text: this.$t('Action'), value: 'action', class: 'accentlight',},
       ]
     },
     formTitle() {
@@ -484,15 +452,43 @@ export default {
   methods: {
     initialize(item) {
       this.loading = true
-      setTimeout(() => (this.loading = false), 1500)
+      this.$axios.get('get-wallet-histories', item)
+        .then((response) => {
+          this.items = response.data.data
 
+        })
+        .catch((error) => {
+          console.log(error.response.data.message)
+        })
+        .finally(() => {
+          this.loading = false
+        })
+
+    },
+
+    changeStatus() {
+      this.btnLoading = true
+      this.$axios.post('change-status/' + this.editedItem.id, this.editedItem)
+        .then((response) => {
+          Object.assign(this.items[this.editedIndex], response.data.data)
+          this.$toast.success(response.data.message)
+          this.closeApproveDialog()
+        })
+        .catch((err) => {
+          this.$toast.error(err.response.data.message)
+        })
+        .finally(() => {
+          this.btnLoading = false
+        })
     },
     openDeleteDialog(item) {
       this.editedIndex = this.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
       this.dialogDelete = true
     },
-    openApproveDialog() {
+    openApproveDialog(item) {
+      this.editedItem = Object.assign({}, item)
+      this.editedIndex = this.items.indexOf(item)
       this.approveDialog = true
     },
     closeDeleteDialog() {
