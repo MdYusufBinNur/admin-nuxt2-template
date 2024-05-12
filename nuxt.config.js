@@ -71,6 +71,7 @@ export default {
   axios: {
     // baseURL: 'https://api.faraaz.info/api/v1'
     baseURL: 'http://adbarta-api/api/v1',
+    // baseURL: 'https://service.gcare.com.bd/api/v1',
   },
 
   // Vuetify module configuration: https://go.nuxtjs.dev/config-vuetify

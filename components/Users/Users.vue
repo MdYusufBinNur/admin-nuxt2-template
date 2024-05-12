@@ -16,11 +16,8 @@
     </v-card>
 
     <v-row class="mb-3">
-      <v-col cols="12" md="6" lg="6"
-             class="mt-2 pb-0">
 
-      </v-col>
-      <v-col cols="12" md="6" lg="6" class="pt-0 mt-0">
+      <v-col cols="12" md="6" lg="6" class="pt-0 mt-0 align-self-center ">
         <v-text-field
           rounded
           color="secondary"
@@ -31,7 +28,10 @@
           single-line
           append-icon=""
           type="text"
-          v-model="filterName"
+          v-model="search"
+          outlined
+          dense
+          class="py-5"
         >
           <template v-slot:append>
             <v-btn icon text small @click.prevent="initialize(true)">
@@ -53,6 +53,12 @@
         <!--          search-->
         <!--        </v-btn>-->
       </v-col>
+      <v-col cols="12" md="6" lg="6"
+             class="mt-2 pb-0  text-right">
+        <v-btn  rounded class="primary text-capitalize justify-center" @click.prevent="openCreateUserDialog">
+          Add User
+        </v-btn>
+      </v-col>
     </v-row>
     <v-skeleton-loader
       v-if="loading"
@@ -64,7 +70,7 @@
       :items="this.filterMode ? tempItems : items"
       item-key="name"
       class="elevation-1"
-      :search="search"
+      :search.sync="search"
       :page.sync="page"
       :items-per-page="itemsPerPage"
       hide-default-footer
@@ -211,7 +217,7 @@
             class="primary px-5"
             rounded
             :loading="btnLoading"
-
+            @click.prevent="makeDelete"
           >
             {{ $t('yes') }}
           </v-btn>
@@ -254,6 +260,90 @@
         </v-card-actions>
       </v-card>
     </v-dialog>
+    <v-dialog
+      v-model="createUserDialog"
+      max-width="650px"
+      persistent
+    >
+      <v-card flat light rounded>
+        <v-card-title class="pt-3 pb-0 h_primary">
+          <span class="kep_title_2">{{ formTitle}}</span>
+        </v-card-title>
+        <v-container grid-list-sm class="pt-0">
+          <v-divider/>
+          <v-row no-gutters class="pa-0">
+            <v-col cols="12" md="6" class="pa-2">
+              <label class="title">{{ $t('Name')}}</label>
+              <v-text-field
+                outlined
+                v-model="formDataItem.full_name"
+                dense
+                hide-details="auto"
+              />
+            </v-col>
+            <v-col cols="12" md="6" class="pa-2">
+              <label class="title">{{ $t('Points/Credit')}}</label>
+              <v-text-field
+                outlined
+                v-model="formDataItem.point"
+                dense
+                type="number"
+                hide-details="auto"
+              />
+            </v-col>
+            <v-col cols="12" class="pa-2">
+              <label class="title">{{ $t('Mobile')}}</label>
+              <v-text-field
+                outlined
+                v-model="formDataItem.phone"
+                dense
+                type="numeric"
+                hide-details="auto"
+              />
+            </v-col>
+
+            <v-divider />
+            <v-list-item-title class="px-2">
+              Login Credentials *
+            </v-list-item-title>
+            <v-col cols="12" class="pa-2">
+              <label class="title">{{ $t('Email')}}</label>
+              <v-text-field
+                outlined
+                v-model="formDataItem.email"
+                dense
+                hide-details="auto"
+                type="email"
+              />
+            </v-col>
+            <v-col cols="12" md="12" class="pa-2">
+              <label class="title">{{ $t('Password')}}</label>
+              <v-text-field
+                outlined
+                v-model="formDataItem.password"
+                dense
+                type="email"
+                hide-details="auto"
+              />
+            </v-col>
+
+          </v-row>
+          <v-divider class="mb-5"/>
+          <v-col cols="12" align="right" class="pa-2">
+
+            <v-btn outlined class="px-7" rounded depressed :loading="loadingSaveData" :disabled="loadingSaveData" @click="saveUser">
+              {{ $t('Save')}}
+            </v-btn>
+            <v-btn outlined class="px-7" rounded depressed  @click="closeView">
+              {{ $t('Close')}}
+            </v-btn>
+
+          </v-col>
+        </v-container>
+      </v-card>
+
+    </v-dialog>
+
   </div>
 </template>
 
@@ -272,6 +362,7 @@ export default {
       trashIcon,
       title: null,
       selectedStatus: null,
+      createUserDialog: false,
       search: '',
       filterName: null,
       calories: '',
@@ -321,6 +412,22 @@ export default {
       totalCount: 0,
       filterMode: false,
       stateLoading: false,
+      formDataItem: {
+        full_name: null,
+        email: null,
+        password: null,
+        phone: null,
+        point: null,
+        role: 'seller'
+      },
+      defaultFormDataItem: {
+        full_name: null,
+        email: null,
+        password: null,
+        phone: null,
+        point: null,
+        role: 'seller'
+      },
       editedItem: {
         name: null,
         email: null,
@@ -446,6 +553,21 @@ export default {
       this.editedItem = Object.assign({}, this.defaultItem)
       this.dialogDelete = false
     },
+    makeDelete(){
+      this.btnLoading = true
+      this.$axios.delete('users/'+ this.editedItem.id)
+        .then((response) => {
+          this.$toast.success(response.data.message)
+          this.items.splice(this.editedIndex, 1)
+          this.closeDeleteDialog()
+        })
+        .catch((error) => {
+          this.$toast.error(error.response.data.message)
+        })
+        .finally(() => {
+          this.btnLoading = false
+        })
+    },
     openDialog(item) {
       this.editedIndex = this.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
@@ -485,10 +607,14 @@ export default {
       this.editedItem = this.defaultItem
       this.walletDialog = false
     },
+
+    openCreateUserDialog() {
+      this.createUserDialog = true
+    },
     setWalletPoint() {
       this.btnLoading = true
       let formData  = new FormData()
-      formData.append('points', this.walletPoint)
+      formData.append('point', this.walletPoint)
       this.$axios.post(`add-point/${this.editedItem.id}`, formData)
         .then((res) => {
           this.$toast.success(res.data.message)
@@ -502,7 +628,28 @@ export default {
           this.walletDialog = false
           this.btnLoading = false
         })
-    }
+    },
+    updateUser() {},
+    saveUser() {
+      this.loadingSaveData = true
+      this.$axios.post('users', this.formDataItem)
+        .then((response) => {
+          this.items.push(response.data.data)
+          this.$toast.success(response.data.message)
+          this.closeView()
+        })
+        .catch((error) => {
+          this.$toast.error(error.response.data.message)
+        })
+        .finally(() => {
+          this.loadingSaveData = false
+        })
+
+    },
+    closeView() {
+      this.createUserDialog = false
+      this.formDataItem = this.defaultFormDataItem
+    },
   }
 }
 </script>
