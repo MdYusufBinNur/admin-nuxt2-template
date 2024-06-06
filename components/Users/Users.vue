@@ -71,8 +71,8 @@
       item-key="name"
       class="elevation-1"
       :search.sync="search"
-      :page.sync="page"
-      :items-per-page="itemsPerPage"
+      :page.sync="paginationMetadata.current_page"
+      :items-per-page="paginationMetadata.per_page"
       hide-default-footer
       align="center"
     >
@@ -531,7 +531,6 @@ export default {
       this.loading = true
       this.$axios.get('users')
         .then((res) => {
-          console.log(res)
           this.items = res.data.data.users
           this.paginationMetadata = res.data.data.pagination
         })
