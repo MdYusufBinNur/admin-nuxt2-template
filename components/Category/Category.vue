@@ -68,7 +68,7 @@
           <v-img
             height="100"
             width="100"
-            src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
+            :src="item.image"
             lazy-src="https://cdn.vuetifyjs.com/images/cards/cooking.png"
             style="border-radius: 0"
           ></v-img>
