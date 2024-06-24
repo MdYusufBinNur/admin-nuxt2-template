@@ -5,8 +5,8 @@ export default {
   ssr: false,
   // Global page headers: https://go.nuxtjs.dev/config-head
   head: {
-    titleTemplate: 'Auction - %s ',
-    title: 'Auction - the biggest marketplace',
+    titleTemplate: 'Adbarta - %s ',
+    title: 'Adbarta - the biggest marketplace',
     htmlAttrs: {
       lang: 'en'
     },
