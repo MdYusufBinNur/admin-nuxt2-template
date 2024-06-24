@@ -69,8 +69,8 @@ export default {
 
   // Axios module configuration: https://go.nuxtjs.dev/config-axios
   axios: {
-    // baseURL: 'https://api.faraaz.info/api/v1'
-    baseURL: 'http://adbarta-api/api/v1',
+    baseURL: 'https://api.adbarta.com/api/v1'
+    // baseURL: 'http://adbarta-api/api/v1',
     // baseURL: 'https://service.gcare.com.bd/api/v1',
   },
 
