@@ -146,5 +146,8 @@ export default {
       callback: '/auth',
       home: '/dashboard'
     }
+  },
+  server: {
+    port: 3001
   }
 }

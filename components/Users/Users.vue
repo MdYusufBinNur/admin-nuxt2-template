@@ -281,6 +281,7 @@
                 hide-details="auto"
               />
             </v-col>
+
             <v-col cols="12" md="6" class="pa-2">
               <label class="title">{{ $t('Points/Credit')}}</label>
               <v-text-field
@@ -288,6 +289,15 @@
                 v-model="formDataItem.point"
                 dense
                 type="number"
+                hide-details="auto"
+              />
+            </v-col>
+            <v-col cols="12" md="12" class="pa-2">
+              <label class="title">{{ $t('Select Category')}}</label>
+              <SelectCategory
+                outlined
+                v-model="formDataItem.categories"
+                dense
                 hide-details="auto"
               />
             </v-col>

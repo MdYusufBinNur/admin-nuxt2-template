@@ -16,6 +16,7 @@
       outlined
       label="Select Category"
       hide-selected
+      multiple
       @change="onChangeSelectedItem(selected)"
     >
 
