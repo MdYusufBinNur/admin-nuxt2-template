@@ -294,12 +294,28 @@
             </v-col>
             <v-col cols="12" md="12" class="pa-2">
               <label class="title">{{ $t('Select Category')}}</label>
-              <SelectCategory
-                outlined
+              <v-autocomplete
                 v-model="formDataItem.categories"
-                dense
+                v-debounce:800ms="debouncedInitData"
+                :items="items"
+                :no-data-text="'No Category'"
+                :loading="loading"
+                :search-input.sync="name"
+                :debounce-events="['onclick', 'oninput', 'onkeydown']"
+                v-bind="$attrs"
                 hide-details="auto"
-              />
+                :item-text="`name`"
+                item-value="id"
+                return-id
+                outlined
+                clearable
+                chips
+                label="Select Category"
+                hide-selected
+                multiple
+              >
+
+              </v-autocomplete>
             </v-col>
             <v-col cols="12" class="pa-2">
               <label class="title">{{ $t('Mobile')}}</label>
@@ -428,6 +444,7 @@ export default {
         password: null,
         phone: null,
         point: null,
+        categories: null,
         role: 'seller'
       },
       defaultFormDataItem: {
@@ -435,6 +452,7 @@ export default {
         email: null,
         password: null,
         phone: null,
+        categories: null,
         point: null,
         role: 'seller'
       },
@@ -496,6 +514,7 @@ export default {
         total: 10,
         total_page: 1,
       },
+      categories: []
     }
   },
   computed: {
@@ -534,6 +553,7 @@ export default {
 
   },
   created() {
+    this.initCategories()
     this.initialize(this.filterMode)
   },
   methods: {
@@ -552,6 +572,10 @@ export default {
         })
 
     },
+    debouncedInitData (v) {
+      this.name = v
+      this.initCategories()
+    },
     openDeleteDialog(item) {
       this.editedIndex = this.items.indexOf(item)
       this.editedItem = Object.assign({}, item)
@@ -561,6 +585,18 @@ export default {
       this.editedIndex = -1
       this.editedItem = Object.assign({}, this.defaultItem)
       this.dialogDelete = false
+    },
+    initCategories () {
+      this.loading = true
+      this.$axios.get('categories?per_page=200')
+        .then((response) => {
+          this.categories = response.data.data.categories
+        })
+        .catch((error) => {
+        })
+        .finally(() => {
+          this.loading = false
+        })
     },
     makeDelete(){
       this.btnLoading = true
