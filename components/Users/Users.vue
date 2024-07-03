@@ -297,7 +297,7 @@
               <v-autocomplete
                 v-model="formDataItem.categories"
                 v-debounce:800ms="debouncedInitData"
-                :items="items"
+                :items="categories"
                 :no-data-text="'No Category'"
                 :loading="loading"
                 :search-input.sync="name"
@@ -306,10 +306,11 @@
                 hide-details="auto"
                 :item-text="`name`"
                 item-value="id"
+                dense
                 return-id
                 outlined
                 clearable
-                chips
+                small-chips
                 label="Select Category"
                 hide-selected
                 multiple
@@ -588,8 +589,9 @@ export default {
     },
     initCategories () {
       this.loading = true
-      this.$axios.get('categories?per_page=200')
+      this.$axios.get('categories?per_page=50')
         .then((response) => {
+          console.log(response.data.data)
           this.categories = response.data.data.categories
         })
         .catch((error) => {
