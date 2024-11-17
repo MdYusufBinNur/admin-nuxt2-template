@@ -168,6 +168,15 @@ export default {
         {title: 'Dashboard', icon: 'mdi-home', to: '/', items: null},
         {title: 'Users', icon: 'mdi-account', to: '/users', items: null},
         {title: 'Category', icon: 'mdi-more', to: '/category', items: null},
+        {
+          title: 'Location',
+          path: null,
+          icon: 'mdi-google-maps',
+          items: [
+            {title: 'District', icon: 'mdi-pencil', to: '/location'},
+            {title: 'Sub District', icon: 'mdi-close', to: '/sub'},
+          ]
+        },
         {title: 'Sub Category', icon: 'mdi-file', to: '/sub-category', items: null},
         {title: 'Wallet', icon: 'mdi-credit-card-plus', to: '/account', items: null},
         {title: 'All Ad', icon: 'mdi-autorenew', to: '/ad', items: null},
