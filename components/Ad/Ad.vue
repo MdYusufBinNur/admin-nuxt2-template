@@ -45,6 +45,113 @@
 
       </v-col>
     </v-row>
+    <v-card class="pa-0 pb-5 mt-4" style="background-color: transparent" flat color="transparent">
+      <v-row>
+        <v-col cols="12" md="5" sm="12" class="">
+         <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
+            {{ $t('Showing ') }} {{ paginationMetadata.per_page }} {{ $t('of') }} {{ paginationMetadata.total }}
+           <v-menu offset-y left>
+            <template v-slot:activator="{ on, attrs }">
+              <v-chip
+                close-icon="mdi-delete"
+                pill
+                small
+                dark
+                v-bind="attrs" v-on="on"
+                color="high"
+              >
+                {{ paginationMetadata.per_page }}
+                <v-icon color="white" class="pl-2">mdi-menu-down</v-icon>
+              </v-chip>
+            </template>
+            <v-list>
+              <v-list-item
+                v-for="(title, index) in itemsPerPageArray"
+                :key="index"
+                class="black--text small"
+                selectable
+                @click="onItemsPerPageChange(title)"
+              >
+                <v-list-item-title class="black--text small" v-model="paginationMetadata.per_page"
+                >{{ title }}</v-list-item-title>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+           {{ $t('Rows per page') }}
+          </span>
+        </v-col>
+        <v-spacer></v-spacer>
+        <v-col cols="12" sm="6" md="5" :align="bp.mdAndUp ? 'right' : 'left'">
+          <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
+            {{ $t('Showing page') }} {{ paginationMetadata.current_page }} {{ $t('of') }} {{ paginationMetadata.total_page }}
+          </span>
+          <v-chip
+            close-icon="mdi-delete"
+            class="rounded-br-0 rounded-tr-0"
+            pill
+            :small="bp.mdAndUp"
+            :x-small="bp.smAndDown"
+            color="white black--text"
+            :disabled="paginationMetadata.current_page === 1"
+            @click="onPageChange('prev')"
+          >
+            <v-icon color="black">mdi-chevron-left</v-icon>
+          </v-chip>
+          <v-chip
+            close-icon="mdi-delete"
+            class="rounded-l-0 rounded-r-0 px-4 mx-0"
+            pill
+            :small="bp.mdAndUp"
+            :x-small="bp.smAndDown"
+            dark
+            color="white black--text"
+          >
+            {{ paginationMetadata.current_page }}
+          </v-chip>
+          <v-chip
+            close-icon="mdi-delete"
+            class="rounded-l-0 rounded-r-0 mx-0"
+            :small="bp.mdAndUp"
+            :x-small="bp.smAndDown"
+            dark
+            color="white black--text"
+            @click="onPageChange('next')"
+          >
+            <v-icon color="black">mdi-chevron-right</v-icon>
+          </v-chip>
+<!--          <v-menu offset-y left>-->
+<!--            <template v-slot:activator="{ on, attrs }">-->
+<!--              <v-chip-->
+<!--                close-icon="mdi-delete"-->
+<!--                class="rounded-bl-0 rounded-tl-0 mx-0"-->
+<!--                pill-->
+<!--                :small="bp.mdAndUp"-->
+<!--                :x-small="bp.smAndDown"-->
+<!--                dark-->
+<!--                v-bind="attrs" v-on="on"-->
+<!--                color="white black&#45;&#45;text"-->
+<!--              >-->
+<!--                {{ paginate }}-->
+<!--                <v-icon color="black" class="pl-2">mdi-menu-down</v-icon>-->
+<!--              </v-chip>-->
+<!--            </template>-->
+<!--            <v-list>-->
+<!--              <v-list-item-->
+<!--                v-for="(title, index) in itemsPerPageArray"-->
+<!--                :key="index"-->
+<!--                class="black&#45;&#45;text small"-->
+<!--              >-->
+<!--                <v-list-item-title class="black&#45;&#45;text small" v-model="paginate" @click="setPagination(title)">{{-->
+<!--                    title-->
+<!--                  }}-->
+<!--                </v-list-item-title>-->
+<!--              </v-list-item>-->
+<!--            </v-list>-->
+<!--          </v-menu>-->
+        </v-col>
+      </v-row>
+    </v-card>
+
     <v-skeleton-loader
       v-if="loading"
       type="table"
@@ -57,9 +164,11 @@
       class="elevation-1"
       :search="search"
       :page.sync="page"
-      :items-per-page="itemsPerPage"
+      :items-per-page="paginationMetadata.per_page"
       hide-default-footer
       align="center"
+      @update:page="onPageChange"
+      @update:items-per-page="onItemsPerPageChange"
     >
 
       <template #item.image="{item}">
@@ -90,110 +199,6 @@
       </template>
     </v-data-table>
 
-    <v-card class="pa-0 pb-5 mt-4" style="background-color: transparent" flat color="transparent">
-      <v-row>
-        <v-col cols="12" md="5" sm="12" class="">
-         <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
-            {{ $t('Showing ') }} {{ items.length }} {{ $t('of') }} {{ totalCount }}
-           <v-menu offset-y left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-chip
-                close-icon="mdi-delete"
-                pill
-                small
-                dark
-                v-bind="attrs" v-on="on"
-                color="high"
-              >
-                {{ paginate }}
-                <v-icon color="white" class="pl-2">mdi-menu-down</v-icon>
-              </v-chip>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(title, index) in itemsPerPageArray"
-                :key="index"
-                class="black--text small"
-                selectable
-              >
-                <v-list-item-title class="black--text small" v-model="paginate"
-                >{{ title }}</v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-           {{ $t('Rows per page') }}
-          </span>
-        </v-col>
-        <v-spacer></v-spacer>
-        <v-col cols="12" sm="6" md="5" :align="bp.mdAndUp ? 'right' : 'left'">
-          <span :class="bp.mdAndUp ? 'mr-4 grey--text' : 'mr-4 grey--text caption text-start'">
-            {{ $t('Showing page') }} {{ page }} {{ $t('of') }} {{ totalPage }}
-          </span>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-br-0 rounded-tr-0"
-            pill
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            color="white black--text"
-
-          >
-            <v-icon color="black">mdi-chevron-left</v-icon>
-          </v-chip>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-l-0 rounded-r-0 px-4 mx-0"
-            pill
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            dark
-            color="white black--text"
-          >
-            {{ page }}
-          </v-chip>
-          <v-chip
-            close-icon="mdi-delete"
-            class="rounded-l-0 rounded-r-0 mx-0"
-            :small="bp.mdAndUp"
-            :x-small="bp.smAndDown"
-            dark
-            color="white black--text"
-
-          >
-            <v-icon color="black">mdi-chevron-right</v-icon>
-          </v-chip>
-          <v-menu offset-y left>
-            <template v-slot:activator="{ on, attrs }">
-              <v-chip
-                close-icon="mdi-delete"
-                class="rounded-bl-0 rounded-tl-0 mx-0"
-                pill
-                :small="bp.mdAndUp"
-                :x-small="bp.smAndDown"
-                dark
-                v-bind="attrs" v-on="on"
-                color="white black--text"
-              >
-                {{ paginate }}
-                <v-icon color="black" class="pl-2">mdi-menu-down</v-icon>
-              </v-chip>
-            </template>
-            <v-list>
-              <v-list-item
-                v-for="(title, index) in itemsPerPageArray"
-                :key="index"
-                class="black--text small"
-              >
-                <v-list-item-title class="black--text small" v-model="paginate" @click="setPagination(title)">{{
-                    title
-                  }}
-                </v-list-item-title>
-              </v-list-item>
-            </v-list>
-          </v-menu>
-        </v-col>
-      </v-row>
-    </v-card>
 
     <v-dialog
       v-model="dialogDelete"
@@ -426,6 +431,18 @@ export default {
         sub_district_id: null,
         address: null,
       },
+      paginationMetadata: {
+        count: 20,
+        current_page: 1,
+        last_page: 1,
+        next_page: 1,
+        next_page_url: "https://api.adbarta.com/api/v1/ads?page=1",
+        per_page: 20,
+        prev_page: 0,
+        prev_page_url: null,
+        total: 1,
+        total_page: 1
+      }
     }
   },
   computed: {
@@ -479,14 +496,19 @@ export default {
     //   this.$store.commit('user/setFilteredUsers', [])
     // })
 
-    this.initialize(this.filterMode)
+    this.initialize()
   },
   methods: {
-    initialize(item) {
+    initialize() {
       this.loading = true
-      this.$axios.get('ads')
+      this.$axios.get('ads',
+        {
+          params: {
+            page: this.paginationMetadata.current_page,
+            per_page: this.paginationMetadata.per_page,
+          }
+        })
         .then((res) => {
-          console.log(res)
           this.items = res.data.data.products
           this.paginationMetadata = res.data.data.pagination
         })
@@ -525,10 +547,9 @@ export default {
       this.editedItem = Object.assign({}, this.defaultItem)
       this.approveDialog = false
     },
-
     makeApprove() {
       this.btnLoading = true
-      let formData= new FormData()
+      let formData = new FormData()
       formData.append('status', this.approvalStatus)
       formData.append('_method', 'put')
       this.$axios.post(`ads/${this.editedItem.id}`, formData)
@@ -543,8 +564,44 @@ export default {
         .finally(() => {
           this.btnLoading = false
         })
-    }
-  }
+    },
+    async fetchData() {
+      this.loading = true;
+      try {
+        const {data} = await this.$axios.get("/ads", {
+          params: {
+            page: this.page,
+            limit: this.itemsPerPage,
+          },
+        });
+        this.items = data.products;
+        this.totalCount = data.pagination.total;
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
+    onPageChange(pageType) {
+      if (pageType === 'next') {
+        this.paginationMetadata.current_page++
+        this.initialize()
+      }
+      if (pageType === 'prev') {
+        this.paginationMetadata.current_page--
+        this.initialize()
+      }
+    },
+    onItemsPerPageChange(page) {
+      this.paginationMetadata.per_page = page
+      this.initialize()
+    },
+  },
+  watch: {
+    // created() {
+    //   this.fetchData();
+    // },
+  },
 }
 </script>
 

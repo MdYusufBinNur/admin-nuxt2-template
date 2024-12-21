@@ -56,7 +56,6 @@
       :items-per-page="paginationMetadata.per_page"
       hide-default-footer
       align="center"
-      @page-count="paginationMetadata.total_page = $event"
     >
       <template #item.status="{item}">
         <v-chip small>
@@ -178,10 +177,10 @@ export default {
         last_page: 1,
         next_page: 1,
         next_page_url: null,
-        per_page: 10,
+        per_page: 200,
         prev_page: 0,
         prev_page_url: null,
-        total: 10,
+        total: 200,
         total_page: 1,
       },
       dialogDelete: false,
