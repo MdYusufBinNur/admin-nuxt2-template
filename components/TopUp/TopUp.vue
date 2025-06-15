@@ -149,6 +149,7 @@ export default {
         { text: this.$t('User'), value: 'user', class: 'accentlight', align: 'center' },
         { text: this.$t('Amount'), value: 'amount', class: 'accentlight', align: 'center' },
         { text: this.$t('Status'), value: 'status', class: 'accentlight', align: 'center' },
+        { text: this.$t('TrxID'), value: 'trx', class: 'accentlight', align: 'center' },
         { text: this.$t('Date'), value: 'date', class: 'accentlight', align: 'center' },
       ];
     },
@@ -176,9 +177,10 @@ export default {
           this.items = response.data.data.map((item, index) => ({
             sl: index + 1,
             user: item?.user?.full_name ?? '-',
-            status: item.status || 'N/A',
+            status: item.status || '-',
             amount: item.points || 0,
-            date: item.created_at ? item.created_at : 'N/A',
+            trx: item.trxID || 0,
+            date: item.date || 'N/A',
           }));
           this.totalCount = this.items.length;
         })
