@@ -288,7 +288,7 @@
         <v-select
           label="Select User"
           class="px-5"
-          :items="['Yusuf','Zobayer','Ahmed', 'Asif', 'Tisha']"
+          :items="[]"
           outlined dense hide-details="auto"
         />
         <v-text-field
@@ -468,7 +468,23 @@ export default {
         {
           text: this.$t('Ad type'),
           sortable: true,
-          value: 'product_type',
+          value: 'ad_type',
+          class: 'accentlight text-capitalized',
+          sortIcon: 'mdi-menu-up',
+          align: 'center'
+        },
+        {
+          text: this.$t('Category'),
+          sortable: true,
+          value: 'category.name',
+          class: 'accentlight text-capitalized',
+          sortIcon: 'mdi-menu-up',
+          align: 'center'
+        },
+        {
+          text: this.$t('Sub Category'),
+          sortable: true,
+          value: 'sub_category.name',
           class: 'accentlight text-capitalized',
           sortIcon: 'mdi-menu-up',
           align: 'center'
