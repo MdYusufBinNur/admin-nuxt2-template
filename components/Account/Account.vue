@@ -31,33 +31,9 @@
           rounded
           outlined
         >
-          <template v-slot:append>
-            <!--            <v-btn icon text small @click.prevent="initialize(true)">-->
-            <!--              <v-icon color="secondary">-->
-            <!--                mdi-magnify-->
-            <!--              </v-icon>-->
-            <!--            </v-btn>-->
-            <!--            <v-btn icon text small v-show="filterMode" @click.prevent="clearFilter">-->
-            <!--              <v-icon color="red">-->
-            <!--                mdi-close-->
-            <!--              </v-icon>-->
-            <!--            </v-btn>-->
-
-          </template>
         </v-text-field>
-        <!--        <v-btn small rounded>-->
-        <!--          <v-icon left>-->
-        <!--            mdi-magnify-->
-        <!--          </v-icon>-->
-        <!--          search-->
-        <!--        </v-btn>-->
       </v-col>
-      <!--      <v-col cols="12" md="6" lg="6"-->
-      <!--             class=" pb-0 text-right text-capitalize px-5">-->
-      <!--        <v-btn class="primary" small rounded @click="openAddCreditDialog">-->
-      <!--          Add Credit-->
-      <!--        </v-btn>-->
-      <!--      </v-col>-->
+
     </v-row>
     <v-skeleton-loader
       v-if="loading"

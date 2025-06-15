@@ -178,7 +178,8 @@ export default {
           ]
         },
         {title: 'Sub Category', icon: 'mdi-file', to: '/sub-category', items: null},
-        {title: 'Wallet', icon: 'mdi-credit-card-plus', to: '/account', items: null},
+        {title: 'Wallet', icon: 'mdi-credit-card', to: '/account', items: null},
+        {title: 'TopUp', icon: 'mdi-credit-card-plus', to: '/top-up', items: null},
         {title: 'All Ad', icon: 'mdi-autorenew', to: '/ad', items: null},
 
         // {
